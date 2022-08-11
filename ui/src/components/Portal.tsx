@@ -19,6 +19,8 @@ import Heatmap from './pages/Heatmap'
 
 import PortalNavBarIntro, {HOME_MENU_ELEMENT_ID, DATA_MENU_ELEMENT_ID} from './intros/PortalNavBarIntro'
 
+import PortalNavBarIntro, {HOME_MENU_ELEMENT_ID, DATA_MENU_ELEMENT_ID} from './intros/PortalNavBarIntro'
+
 function Layout ({}) {
   const {navigate, location, isActivePath} = useRouter()
   const routes = [
