@@ -94,6 +94,90 @@ function useSelectDataVariablesState({}) {
     return {state, dispatch}
 }
 
+import * as R from 'remeda'
+
+const harddata = [
+{refID: 0, dv1: 2, dv2: 2},
+{refID: 1, dv1: 2, dv2: 0},
+{refID: 2, dv1: 2, dv2: 1},
+{refID: 3, dv1: 2, dv2: 0},
+{refID: 4, dv1: 2, dv2: 1},
+{refID: 5, dv1: 2, dv2: 1},
+{refID: 6, dv1: 2, dv2: 0},
+{refID: 7, dv1: 2, dv2: 0},
+{refID: 8, dv1: 2, dv2: 0},
+]
+const columns = [
+  {
+    Header: 'Reference ID',
+    accessor: 'refID',
+  },
+  {
+    Header: 'HENV18WKQ2a',
+    accessor: 'dv1',
+  },
+  {
+    Header: 'HENV18WKQ2b',
+    accessor: 'dv2',
+  },
+]
+const dv1Pie = [
+    {letter: '2', frequency: 9}
+]
+const dv2Pie = [
+    {letter: '0', frequency: 5},
+    {letter: '1', frequency: 3},
+    {letter: '2', frequency: 1},
+]
+
+const VISUALIZATIONS = R.pipe(
+    [
+        {key: 'table', },
+        {key: 'bar', },
+        {key: 'pie', },
+        {key: 'sunburst', },
+        {key: 'treemap', },
+        {key: 'heatmap', },
+        {key: 'violin', },
+    ],
+    R.map(({key}) => ({key, text: key, value: key}))
+)
+
+function useSelectDataVariablesState({}) {
+
+    const [state, dispatch] = useReducer((state, action) => {
+        const {type, payload} = action
+        console.log(state, action)
+        switch (type) {
+            case 'toggleDataVariable':
+                const {dataVariableID} = payload
+                if (state.selected.has(dataVariableID)) {
+                    state.selected.delete(dataVariableID)
+                } else {
+                    state.selected.add(dataVariableID)
+                }
+                // Instantiate new set to trigger reference change for react render
+                return {... state, selected: new Set(state.selected)}
+            case 'saveSnapshot':
+                const snapshot = {
+                    snapshotKey: state.snapshotKey,
+                    dataVariables: [... state.selected]
+                }
+                state.snapshots.add(snapshot)
+                state.selected.clear()
+                state.snapshotKey = null
+                return {... state, selected: new Set(state.selected), snapshots: new Set(state.snapshots)}
+            case 'setSnapshotKey':
+                const {snapshotKey} = payload
+                return {... state, snapshotKey}
+            default: 
+                return state
+        }
+    }, {selected: new Set(), snapshots: new Set(), snapshotKey: null})
+
+    return {state, dispatch}
+}
+
 function DataExportDetails () {
     const {exportID} = useParams()
     const {state, dispatch} = useSelectDataVariablesState({})
