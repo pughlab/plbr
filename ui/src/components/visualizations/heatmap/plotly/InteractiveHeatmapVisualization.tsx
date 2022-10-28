@@ -6,8 +6,23 @@ import Plot from 'react-plotly.js';
 import * as R from 'remeda'
 
 //this code assumes all samples (y-axis) have the same bins: 'start' (x-axis)
-// data is the result of a gql query onto curatedDatasets with dataVariable fields
-export default function InteractiveHeatmapVisualization({data} : {data: any}) {
+export default function InteractiveHeatmapVisualization() {
+    const { data, loading, error } = useQuery(gql`
+        query HeatmapDataVariables{
+            curatedDatasets {
+                curatedDatasetID
+                name
+                dataVariables(options: {sort: [ {chromosome: ASC},{ start: ASC } ]})
+                {
+                    dataVariableID
+                    chromosome
+                    start
+                    end
+                    datavalue
+                }
+            }
+        }`,
+        {})
     if (!data) {return}
 
     //array declarations for data
