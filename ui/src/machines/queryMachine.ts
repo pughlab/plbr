@@ -7,6 +7,31 @@ interface QueryMachineContext {
     variables: any,
 }
 
+import { gql } from '@apollo/client'
+import apolloClient from '../apolloClient'
+import * as R from 'remeda'
+
+import {faker} from '@faker-js/faker'
+
+interface QueryMachineContext {
+    data: any,
+    errors: any,
+    variables: any
+}
+
+const GET_DATA_VARIABLES = gql`
+    query DataVariables {
+        curatedDatasets {
+            curatedDatasetID
+            name
+            # dataVariables(options: {sort: [ {chromosome: ASC},{ start: ASC } ]}) {
+            dataVariables {
+                dataVariableID
+            }  
+        }
+    }
+`
+
 export const QUERY_STATES = {
     IDLE: 'idle',
     LOADING: 'loading',

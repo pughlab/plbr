@@ -6,7 +6,6 @@ import apolloClient from '../apolloClient'
 import * as R from 'remeda'
 
 
-
 export const SNAPSHOT_STATES = {
     IDLE: 'idle',
     // UPDATING: 'updating'
@@ -52,7 +51,6 @@ export const createSnapshotMachine = () => {
     })
 
     return machine
-}
 
 export function useSnapshotMachine () {
     const snapshotMachine = useMemo(() => createSnapshotMachine(), [])

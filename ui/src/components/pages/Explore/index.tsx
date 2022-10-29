@@ -1,4 +1,3 @@
-import React, { useState, useReducer, useMemo, useEffect } from 'react'
 import { Message, Divider, List, Container, Input, Segment, Form, Button, Dropdown, Modal } from 'semantic-ui-react'
 import DataVariableTable from '../../visualizations/tables/DataVariableTable'
 import InteractiveHeatmapVisualization from '../../visualizations/heatmap/plotly/InteractiveHeatmapVisualization';
@@ -14,21 +13,47 @@ import * as R from 'remeda'
 import ExploreFilterFormGroup from './ExploreFilterFormGroup';
 import { QUERY_EVENTS } from '../../../machines/queryMachine';
 
-function DownloadDataVariables({ data }) {
-    console.log(data)
-    // Can combine with react-table headers
-    const headers = [
-        { label: 'chromosome', key: 'chromosome' },
-        { label: 'start', key: 'start' },
-        { label: 'end', key: 'end' },
-        { label: 'datavalue', key: 'datavalue' }
-    ]
-    return (
-        <CSVLink data={data} headers={headers} filename={"pibu_export.csv"}>
-            <Button fluid content={`Download ${data.length} variables`} />
-        </CSVLink>
-    )
 }
+
+function useSnapshotQueryVariables() {
+    // const [formState, formDispatch] = useReducer((state: any, action: any) => {
+    //     const {type, payload} = action
+    //     switch (type) {
+    //         case 'setSearchText':
+    //             const {searchText} = payload
+    //             return {... state, searchText}
+    //         case 'setStudyIDs':
+    //             const {studyIDs} = payload
+    //             return {... state, studyIDs}
+    //         case 'setStudyIDs':
+    //             const {} = payload
+    //             return {... state, studyIDs}
+    //         default:
+    //             return state
+    //     }
+    // }, {
+    //     searchText: '',
+    //     studyIDs: [],
+    //     datasetIDs: [],
+    //     fieldSearches: []
+    // })
+    const [state, dispatch] = useReducer((state: any, action: any) => {
+        const {type, payload} = action
+        switch (type) {
+            case 'setSnapshotType':
+                const {snapshotType} = payload
+                return {... state, snapshotType}
+            default:
+                return state
+        }
+    }, {
+        snapshotType: 'table',
+        dataVariableIDs: []
+    })
+    return {state, dispatch}
+}
+
+
 
 export default function Explore() {
 
@@ -51,6 +76,7 @@ export default function Explore() {
         queryMachine.send({type: QUERY_EVENTS.UPDATE_VARIABLES, variables: {curatedDatasetIDs: selectedDatasets}})
     }, [selectedDatasets])
 
+    if (!current.matches('loaded')) {return}
 
     // const [start, setStart] = useState(0)
     // const [end, setEnd] = useState(1000)
