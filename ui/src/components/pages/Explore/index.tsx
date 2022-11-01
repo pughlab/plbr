@@ -72,13 +72,19 @@ export default function Explore() {
     return (
         <>        
             <Message>
-                Some text about data variables and searching to create visualizations
+                {/* Some text about data variables and searching to create visualizations */}
+                {JSON.stringify(snapshotMachine.state.context)}
+
+                {JSON.stringify(filterMachine.state.context)}
+                
+                {JSON.stringify(queryMachine.state.context.variables)}
                 <Divider horizontal />
                 <Button.Group>
                     <Button content='List' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'list'}})} />
                     <Button content='Table' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'table'}})} />
                     <Button content='Heatmap' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'heatmap'}})} />
                 </Button.Group>
+
             </Message>
 
             <Segment attached='top'>
@@ -91,8 +97,7 @@ export default function Explore() {
                         )
                     })()
                 }
-                {JSON.stringify(filterMachine.state.context)}
-                {JSON.stringify(queryMachine.state.context.variables)}
+
                 
             </Segment>
 
@@ -136,7 +141,7 @@ export default function Explore() {
                         return (
                             <>
                             {snapshotIs('list') && <></>}
-                            {snapshotIs('table') && <DataVariableTable data={data} />}
+                            {snapshotIs('table') && <DataVariableTable data={data} {...{snapshotMachine}} />}
                             {snapshotIs('heatmap') && <InteractiveHeatmapVisualization data={data} />}
                             </>
                         )

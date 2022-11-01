@@ -1,5 +1,5 @@
 import React from 'react'
-import {Table, Segment, Button, Input, Dropdown, Divider, Label, Form, Icon} from 'semantic-ui-react'
+import {Table, Segment, Button, Input, Dropdown, Divider, Label, Form, Icon, Checkbox} from 'semantic-ui-react'
 import styled from 'styled-components'
 import {
   useTable,
@@ -14,6 +14,7 @@ import matchSorter from 'match-sorter'
 
 // import makeData from './makeData'
 import * as R from 'remeda'
+import { SNAPSHOT_EVENTS } from '../../../../machines/snapshotMachine'
 
 const Styles = styled.div`
   padding: 1rem;
@@ -76,7 +77,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 fuzzyTextFilterFn.autoRemove = val => !val
 
 // Be sure to pass our updateMyData and the skipReset option
-function FullTable({ columns, data, updateMyData, skipReset }) {
+function FullTable({ columns, data, updateMyData, skipReset, snapshotMachine }) {
   const filterTypes = React.useMemo(
     () => ({
       // Add a new fuzzyTextFilterFn filter type.
@@ -162,6 +163,16 @@ function FullTable({ columns, data, updateMyData, skipReset }) {
     hooks => {
       hooks.visibleColumns.push(columns => {
         return [
+          {
+            id: "selection",
+            Header: ({ getToggleAllRowsSelectedProps }) => (
+              // <Checkbox {...getToggleAllRowsSelectedProps()} onChange={() => console.log('check')} />
+              null
+            ),
+            Cell: ({ row }) => {
+              return (null)
+            },
+          },
           ...columns,
         ]
       })
@@ -215,10 +226,20 @@ function FullTable({ columns, data, updateMyData, skipReset }) {
         <Table.Header>
         {headerGroups.map(headerGroup => (
             <Table.Row {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
+              <Table.HeaderCell {...headerGroup.headers[0].getHeaderProps()}>
+                <Button content='All' /> 
+              </Table.HeaderCell>
+              {headerGroup.headers.slice(1).map(column => (
                 <Table.HeaderCell {...column.getHeaderProps()}>
                   <div>
-                    <input type="checkbox"/>
+                    <Checkbox
+                      // checked={snapshotMachine.state.context.dataVariableIDs[row.orig]}
+                      onChange={() => {
+                        console.log(column.id)
+                        // const dataVariableID = R.prop('dataVariableID')(row.original)
+                        // snapshotMachine.send({type: SNAPSHOT_EVENTS.TOGGLE_DATA_VARIABLE, payload: {dataVariableID}})
+                      }}
+                    />
                     <span {...column.getSortByToggleProps()}>
                       {column.render('Header')}
                       {/* Add a sort direction indicator */}
@@ -282,7 +303,7 @@ function filterGreaterThan(rows, id, filterValue) {
 // will be automatically removed. Normally this is just an undefined
 // check, but here, we want to remove the filter if it's not a number
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
-export default function DataVariableTable({data}) {
+export default function DataVariableTable({data, snapshotMachine}) {
   console.log('table data', data)
   const dataVariablesData = R.pipe(
     data,
@@ -355,6 +376,7 @@ export default function DataVariableTable({data}) {
       {/* <button onClick={resetData}>Reset Data</button> */}
       <FullTable
         columns={columns}
+        snapshotMachine={snapshotMachine}
         data={dataVariablesData}
         updateMyData={updateMyData}
         skipReset={skipResetRef.current}
