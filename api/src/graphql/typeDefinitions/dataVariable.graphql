@@ -14,12 +14,23 @@ type DataVariable {
 }
 
 type DataVariableField {
-    dataVariable: DataVariable! @relationship(type: "HAS_DEFINITION", direction: IN)
     name: String!
     # code: String!
     # description: String!
     # jsonSchema: JSON!
     value: JSON!
+
+    belongsTo: DataVariable! @relationship(type: "HAS_FIELD", direction: IN)
+    definedBy: DataVariableFieldDefinition! @relationship(type: "HAS_FIELD_DEFINITION", direction: OUT)
+}
+
+type DataVariableFieldDefinition {
+    dataVariableFieldDefinitionID: ID! @id
+    xref: ID!
+    description: String!
+    validationSchema: JSON
+
+    hasFieldValues: [DataVariableField!]! @relationship(type: "HAS_FIELD_DEFINITION", direction: IN)
 }
 
 # # This is a field

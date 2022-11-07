@@ -3,11 +3,28 @@ import { useCallback, useState } from 'react'
 import * as React from 'react'
 import { Button, Form, Header, Label, Input, Segment, Container, Message, List, Divider, Modal, Grid, Dropdown } from 'semantic-ui-react'
 import { Route, Routes, useParams } from 'react-router-dom'
-import MinioBucket from '../../common/minio'
+import {MinioUploadModal} from '../../common/minio'
+import SegmentPlaceholder from '../../common/SegmentPlaceholder'
+
+import * as R from 'remeda'
 // import DataVariableTable from '../../visualizations/tables/DataVariableTable'
 
-function useRawDatasetDataVariablesQuery({rawDatasetID}) {
-  return {}
+
+function useCreateCuratedDatasetMutation({}) {
+  const [mutation, {data, loading, error}] = useMutation(gql`
+    mutation CreateCuratedDataset(
+      $rawDatasetID: ID!,
+      $rawObjectName: ID!, $codebookObjectName: ID!
+    ) {
+      createCuratedDatasetFromRawDataset(
+        rawDatasetID: $rawDatasetID,
+        rawObjectName: $rawObjectName, codebookObjectName: $codebookObjectName
+      ) {
+        name
+      }
+    }
+  `)
+  return {data, loading, error, mutation}
 }
 
 export default function DatasetDetails() {
@@ -29,9 +46,26 @@ export default function DatasetDetails() {
 			}
 		}`,
     { variables: { rawDatasetID: datasetID } })
+  const minioUploadQuery = useQuery(gql`
+    query MinioUploads($bucketName: ID!) {
+        minioUploads(where: {bucketName: $bucketName}) {
+            bucketName
+            objectName
+            filename
+        }
+    }`,
+    { variables: { bucketName: `raw-dataset-${datasetID}` }, fetchPolicy: 'network-only' })
+
+  const [minioObjectNames, setMinioObjectNames] = useState({raw: null, codebook: null})
+  
+  const {mutation, loading: mutationLoading} = useCreateCuratedDatasetMutation({})
   if (!data?.rawDatasets) {
     return null
   }
+  if (!minioUploadQuery.data?.minioUploads) {
+    return
+  }
+  const {minioUploads} = minioUploadQuery.data
   const [{ rawDatasetID, name, description, fromStudy, studySite }] = data.rawDatasets
   return (
     <>
@@ -53,10 +87,31 @@ export default function DatasetDetails() {
         <Grid.Row divided>
           <Grid.Column width={10}>
             <Divider horizontal content='Dataset Files' />
-            <MinioBucket bucketName={`raw-dataset-${rawDatasetID}`} />
+            {
+              (() => {
+                if (!minioUploadQuery.data) {return}
+                const {minioUploads} = minioUploadQuery.data
+                return (
+                  <Segment>
+                    <MinioUploadModal bucketName={`raw-dataset-${datasetID}`} />
+                    <Divider horizontal />
+                    {!minioUploads.length ? <SegmentPlaceholder text={'No uploads yet'} /> :
+                        <List celled divided>
+                            {minioUploads.map(minioUpload => (
+                                <List.Item
+                                    content={minioUpload.filename}
+                                    description={minioUpload.objectName}
+                                />
+                            ))}
+                        </List>
+                    }
+                </Segment>
+                )
+              })()
+            }
           </Grid.Column>
           <Grid.Column width={6}>
-            <Segment>
+            <Segment loading={mutationLoading}>
               <Divider horizontal content='Transformation Into Data Variables' />
               <Dropdown
                 placeholder='Select transformation for the raw dataset minio bucket'
@@ -64,9 +119,39 @@ export default function DatasetDetails() {
                 options={[]}
               />
               <Message>
-                Transformation requirements
+                Transformation
               </Message>
-              <Button fluid content='Submit' />
+              <Form>
+                <Form.Group widths={2}>
+                  <Form.Field
+                    control={Dropdown}
+                    label='Raw CSV file'
+                    selection
+                    fluid
+                    value={minioObjectNames.raw}
+                    options={R.map(minioUploads, (minioUpload: any) => ({value: minioUpload.objectName, text: minioUpload.filename}))}
+                    onChange={(e, {value}) => setMinioObjectNames({...minioObjectNames, raw: value})}
+                  />
+                  <Form.Field
+                    control={Dropdown}
+                    label='Codebook file'
+                    selection
+                    fluid
+                    value={minioObjectNames.codebook}
+                    options={R.map(minioUploads, (minioUpload: any) => ({value: minioUpload.objectName, text: minioUpload.filename}))}
+                    onChange={(e, {value}) => setMinioObjectNames({...minioObjectNames, codebook: value})}
+                  />
+                </Form.Group>
+                <Form.Button fluid content='Submit'
+                  onClick={() => mutation({variables: {
+                    rawDatasetID,
+                    rawObjectName: minioObjectNames.raw,
+                    codebookObjectName: minioObjectNames.codebook
+                  }})}
+                />
+
+              </Form>
+
             </Segment>
           </Grid.Column>
         </Grid.Row>

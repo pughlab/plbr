@@ -30,6 +30,7 @@ type CuratedDataset {
     name: String!
     description: String!
     dataVariables: [DataVariable!]! @relationship(type: "HAS_DATA_VARIABLE", direction: OUT)
+    dataVariableFieldDefinitions: [DataVariableFieldDefinition!]! @relationship(type: "HAS_FIELD_DEFINITION", direction: OUT)
 
     generatedByRawDataset: RawDataset! @relationship(type: "GENERATED_CURATED_DATASET", direction: IN)
 }
@@ -37,8 +38,8 @@ type CuratedDataset {
 type Mutation {
     createCuratedDatasetFromCSVCodebook(rawDatasetID: ID!): Boolean!
     createCuratedDatasetFromRawDataset(
-        name: String!
-        description: String!
         rawDatasetID: ID!
+        rawObjectName: ID!
+        codebookObjectName: ID!
     ): CuratedDataset!
 }

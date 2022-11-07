@@ -8,7 +8,7 @@ import useMinioUploadMutation from '../../../hooks/useMinioUploadMutation'
 import SegmentPlaceholder from '../SegmentPlaceholder'
 
 
-function MinioUploadModal({ bucketName }) {
+export function MinioUploadModal({ bucketName }) {
     const { state: uploadState, dispatch: uploadDispatch, mutation: uploadMutation } = useMinioUploadMutation()
     const onDrop = useCallback((files: FileWithPath[]) => {
         uploadMutation({
