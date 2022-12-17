@@ -18,9 +18,9 @@ export default function useStudiesDatasetsQueryMachine () {
                     name
                     generatedCuratedDataset {
                         curatedDatasetID
-                        dataVariablesAggregate {
-                            count
-                        }
+                        # dataVariablesAggregate {
+                        #     count
+                        # }
                     }
                 }
             }
