@@ -15,7 +15,10 @@ import {
 
 import { FixedSizeList } from 'react-window'
 import scrollbarWidth from './scrollbarWidth'
-import { CSVLink } from "react-csv";
+import { CSVLink } from 'react-csv';
+
+import * as R from 'remeda'
+
 
 
 // import makeData from './makeData'
@@ -395,14 +398,17 @@ export default function VirtualizedTable({data}) {
 // const [selectedRows, setSelectedRows] = useState({ "0": true, "9": true});
 const [selectedRows, setSelectedRows] = useState({})
 
+console.log(data)
 
 const selectedRowKeys = Object.keys(selectedRows);
+
+console.log(data.curatedDatasets[0].dataVariables)
 
   return (
     <Styles>
       <MyTable 
         columns={columns} 
-        data={data}
+        data={data.curatedDatasets[0].dataVariables}
         updateMyData={updateMyData}
         skipReset={skipResetRef.current}
         selectedRows={selectedRows}
