@@ -19,7 +19,7 @@ export default function useCuratedDatasetsQueryMachine () {
                 curatedDatasetID
                 name
                 # dataVariables(options: {sort: [ {chromosome: ASC},{ start: ASC } ]}) {
-                dataVariables {
+                dataVariables(options:{limit:100000}) {
                     dataVariableID
                     fields {
                         name
