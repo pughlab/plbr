@@ -247,12 +247,13 @@ function MyTable({ columns, data, updateMyData, skipReset, selectedRows, onSelec
     },
     [prepareRow, rows, selectedRowIds]
   )
+  console.log(data)
 
   // Render the UI for your table
   return (
     <>
     {/* displaying selected rows */}
-    <code>
+    {/* <code>
         {JSON.stringify(
           {
             selectedRowIds:selectedRowIds,
@@ -261,9 +262,10 @@ function MyTable({ columns, data, updateMyData, skipReset, selectedRows, onSelec
             )
           }
         )}
-      </code>
+      </code> */}
       {/* exporting selected rows */}
-        <CSVLink data={selectedFlatRows.map((d) => d.original)} filename={"plbr_select_export.csv"}>
+        {/* <CSVLink data={selectedFlatRows.map((d) => d.original)} filename={"plbr_select_export.csv"}>*/}
+        <CSVLink data={data} filename={"plbr_select_export.csv"}>
             <Button fluid content={`Export Selected Data Variables`} />
         </CSVLink>
     <Table {...getTableProps()} as={Segment} attached='bottom'>

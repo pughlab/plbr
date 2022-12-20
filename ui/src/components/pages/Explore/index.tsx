@@ -14,6 +14,8 @@ import * as R from 'remeda'
 import ExploreFilterFormGroup from './ExploreFilterFormGroup';
 import { QUERY_EVENTS } from '../../../machines/queryMachine';
 
+import VirtualizedTable from '../../tables/VirtualizedTable'
+
 function DownloadDataVariables({ data }) {
     console.log(data)
     // Can combine with react-table headers
@@ -136,7 +138,8 @@ export default function Explore() {
                         return (
                             <>
                             {snapshotIs('list') && <></>}
-                            {snapshotIs('table') && <DataVariableTable data={data} />}
+                            {/* {snapshotIs('table') && <DataVariableTable data={data} />} */}
+                            {snapshotIs('table') && <VirtualizedTable data={data} />}
                             {snapshotIs('heatmap') && <InteractiveHeatmapVisualization data={data} />}
                             </>
                         )
