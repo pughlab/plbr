@@ -34,10 +34,10 @@ export const resolvers = {
             \'CALL apoc.load.csv($presignedURL, {sep: \" \", compression: \"GZIP\", header: false}) YIELD list\',
             \'MATCH (b:CuratedDataset {curatedDatasetID: $curatedDatasetID})
             CREATE (a:DataVariable {dataVariableID: apoc.create.uuid()}),
-              (c:DataVariableField {name: \"chromosome\", value: list[0]}),
-              (d:DataVariableField {name: \"start\", value: list[1]}),
-              (e:DataVariableField {name: \"end\", value: list[2]}),
-              (f:DataVariableField {name: \"datavalue\", value: list[3]}),
+              (c:DataVariableField {name: \"chromosome\", value: toFloat(apoc.text.replace(list[0],\"chr\",\"\")) }),
+              (d:DataVariableField {name: \"start\", value: toInteger(list[1])}),
+              (e:DataVariableField {name: \"end\", value: toInteger(list[2])}),
+              (f:DataVariableField {name: \"datavalue\", value: toFloat(list[3])}),
               (a)-[:HAS_FIELD]->(c), (a)-[:HAS_FIELD]->(d), (a)-[:HAS_FIELD]->(e), (a)-[:HAS_FIELD]->(f), (b)-[:HAS_DATA_VARIABLE]->(a)
             RETURN a\',
             {batchSize:10000, iterateList:true, parallel:true, params:{curatedDatasetID: $curatedDatasetID, presignedURL: $presignedURL}}

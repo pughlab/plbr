@@ -19,7 +19,7 @@ type DataVariableField {
     # code: String!
     # description: String!
     # jsonSchema: JSON!
-    value: JSON!
+    value: Float!
 }
 
 # # This is a field
