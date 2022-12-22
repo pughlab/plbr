@@ -247,7 +247,7 @@ function MyTable({ columns, data, updateMyData, skipReset, selectedRows, onSelec
     },
     [prepareRow, rows, selectedRowIds]
   )
-  console.log(data)
+  // console.log(data)
 
   // Render the UI for your table
   return (
@@ -266,8 +266,9 @@ function MyTable({ columns, data, updateMyData, skipReset, selectedRows, onSelec
       {/* exporting selected rows */}
         {/* <CSVLink data={selectedFlatRows.map((d) => d.original)} filename={"plbr_select_export.csv"}>*/}
         <CSVLink data={data} filename={"plbr_select_export.csv"}>
-            <Button fluid content={`Export Selected Data Variables`} />
+            <Button fluid content={`Export Filtered Data`} />
         </CSVLink>
+        <Divider horizontal/>
     <Table {...getTableProps()} as={Segment} attached='bottom'>
         <Table.Header>
         {headerGroups.map(headerGroup => (
@@ -400,11 +401,11 @@ export default function VirtualizedTable({data}) {
 // const [selectedRows, setSelectedRows] = useState({ "0": true, "9": true});
 const [selectedRows, setSelectedRows] = useState({})
 
-console.log(data)
+// console.log(data)
 
 const selectedRowKeys = Object.keys(selectedRows);
 
-console.log(data.curatedDatasets[0].dataVariables)
+// console.log(data.curatedDatasets[0].dataVariables)
 
   return (
     <Styles>
@@ -417,13 +418,13 @@ console.log(data.curatedDatasets[0].dataVariables)
         onSelectedRowsChange={setSelectedRows}
          />
          <code>
-        {JSON.stringify(
+        {/* {JSON.stringify(
           {
             selectedRowKeys
           },
           null,
           2
-        )}
+        )} */}
       </code>
     </Styles>
   )

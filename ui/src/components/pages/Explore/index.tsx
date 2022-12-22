@@ -15,6 +15,7 @@ import ExploreFilterFormGroup from './ExploreFilterFormGroup';
 import { QUERY_EVENTS } from '../../../machines/queryMachine';
 
 import VirtualizedTable from '../../tables/VirtualizedTable'
+import useDataVariablesQuery from '../../../hooks/pages/useDataVariablesQuery';
 
 function DownloadDataVariables({ data }) {
     console.log(data)
@@ -32,14 +33,52 @@ function DownloadDataVariables({ data }) {
     )
 }
 
+function BinFilterForm({dispatch}) {
+    const [filterState, setFilterState] = useState({
+        chromosome: '',
+        start: '',
+        end: '',
+        datavalue: ''
+    })
+    const setFilterValue = (prop: string, newValue: any) => setFilterState({...filterState, [prop]: newValue})
+    return (
+        <Form>
+            <Form.Group widths={4}>
+                <Form.Input label='chromosome' type='input'
+                    value={filterState.chromosome}
+                    onChange={(e, {value}) => setFilterValue('chromosome', value)}
+                />
+                <Form.Input label='start' type='number'
+                    value={filterState.start}
+                    onChange={(e, {value}) => setFilterValue('start', value)}
+                />
+                <Form.Input label='end' type='number'
+                    value={filterState.end}
+                    onChange={(e, {value}) => setFilterValue('end', value)}
+                />
+                <Form.Input label='datavalue' type='number'
+                    value={filterState.datavalue}
+                    onChange={(e, {value}) => setFilterValue('datavalue', value)}
+                />
+                {/* <Form.Field> */}
+                {/* </Form.Field> */}
+            </Form.Group>
+            <Form.Button fluid content='Add filter' onClick={() => dispatch({type: 'addBinFilter', payload: filterState})}/>
+
+        </Form>
+    )
+}
+
 export default function Explore() {
 
-    const {query: queryMachine} = useCuratedDatasetsQueryMachine()
-    const {snapshot: snapshotMachine} = useSnapshotMachine()
+    // const {query: queryMachine} = useCuratedDatasetsQueryMachine()
+    const {state, dispatch, data, loading, loadQuery} = useDataVariablesQuery({})
+    // const {snapshot: snapshotMachine} = useSnapshotMachine()
     const {filter: filterMachine} = useStudiesDatasetsFilterMachine()
+    console.log(filterMachine.state)
 
-    const {snapshotType} = snapshotMachine.state.context
-    const snapshotIs = R.equals(snapshotType)
+    // const {snapshotType} = snapshotMachine.state.context
+    // const snapshotIs = R.equals(snapshotType)
 
     // Should move these as accessors for machine
     const selectedDatasets = useMemo(() => R.pipe(
@@ -50,7 +89,8 @@ export default function Explore() {
     ), [filterMachine.state.context])
     useEffect(() => {
         console.log('changing selected curated datasets', selectedDatasets)
-        queryMachine.send({type: QUERY_EVENTS.UPDATE_VARIABLES, variables: {curatedDatasetIDs: selectedDatasets}})
+        dispatch({type: 'setCuratedDatasetIDs', payload: selectedDatasets})
+        // queryMachine.send({type: QUERY_EVENTS.UPDATE_VARIABLES, variables: {curatedDatasetIDs: selectedDatasets}})
     }, [selectedDatasets])
 
 
@@ -65,7 +105,7 @@ export default function Explore() {
     // //     { variables: { searchText, start, end } })
     // // console.log(data)
     
-    console.log(queryMachine)
+    // console.log(queryMachine)
     
 
 
@@ -74,31 +114,54 @@ export default function Explore() {
     return (
         <>        
             <Message>
-                Some text about data variables and searching to create visualizations
+                Data variable explore
                 <Divider horizontal />
-                <Button.Group>
+                {/* <Button.Group>
                     <Button content='List' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'list'}})} />
                     <Button content='Table' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'table'}})} />
                     <Button content='Heatmap' onClick={() => snapshotMachine.send({type: SNAPSHOT_EVENTS.CHANGE_TYPE, payload: {snapshotType: 'heatmap'}})} />
-                </Button.Group>
+                </Button.Group> */}
             </Message>
 
             <Segment attached='top'>
                 <ExploreFilterFormGroup {...{filterMachine}} />
                 {
-                    (() => {
-                        if (!filterMachine.state.matches(FILTER_STATES.READY)) {return }
+                    (()=> {
                         return (
-                            <Button fluid content='Search' onClick={() => queryMachine.send({type: QUERY_EVENTS.REFRESH})}/>
+                            <Segment>
+                                                            {/* {JSON.stringify(state.binFilters)} */}
+                            <BinFilterForm dispatch={dispatch} />
+                            <List divided relaxed selection>
+                            {
+                                state.binFilters.map((binFilter, index) => (
+                                    <List.Item>
+                                    <Button inverted fluid color='red' onClick={() => dispatch({type: 'removeBinFilter', payload: index})}>
+                                    {JSON.stringify(binFilter)}
+                                    </Button>
+                                    </List.Item>
+                                ))
+                            }
+                            </List>
+                            </Segment>
                         )
                     })()
                 }
-                {JSON.stringify(filterMachine.state.context)}
-                {JSON.stringify(queryMachine.state.context.variables)}
+                {
+                    (() => {
+                        if (!filterMachine.state.matches(FILTER_STATES.READY)) {return }
+                        return (
+                            <Button fluid content='Search' onClick={() => loadQuery()} loading={loading} />
+                            // <Button fluid content='Search' onClick={() => queryMachine.send({type: QUERY_EVENTS.REFRESH})}/>
+                        )
+                    })()
+                }
+                {/* {JSON.stringify(filterMachine.state.context)} */}
+
+                {/* {JSON.stringify(queryMachine.state.context.variables)} */}
                 
             </Segment>
 
-            <Segment attached >
+            {/* <Segment attached >
                 <Modal
                     trigger={<Button fluid content='Create data export' />}
                     content={
@@ -124,23 +187,26 @@ export default function Explore() {
                         <Button content='Submit' />
                     ]}
                 />
-            </Segment>
+            </Segment> */}
 
             <Segment attached='bottom'
                 // loading={loading}
             >
                 {
                     (() => {
-                        if (!queryMachine.state.matches('loaded')) {return}
-                        const {curatedDatasets} = queryMachine.state.context.data
-                        console.log(selectedDatasets, curatedDatasets)
-                        const data = {curatedDatasets: R.filter(curatedDatasets, ({curatedDatasetID}) => selectedDatasets.includes(curatedDatasetID))}
+                        // if (!queryMachine.state.matches('loaded')) {return}
+                        // const {curatedDatasets} = queryMachine.state.context.data
+                        // console.log(selectedDatasets, curatedDatasets)
+                        // const data = {curatedDatasets: R.filter(curatedDatasets, ({curatedDatasetID}) => selectedDatasets.includes(curatedDatasetID))}
                         return (
                             <>
-                            {snapshotIs('list') && <></>}
+                            {/* {JSON.stringify({state, data})} */}
+                            {/* {snapshotIs('list') && <></>} */}
                             {/* {snapshotIs('table') && <DataVariableTable data={data} />} */}
-                            {snapshotIs('table') && <VirtualizedTable data={data} />}
-                            {snapshotIs('heatmap') && <InteractiveHeatmapVisualization data={data} />}
+                            {/* {snapshotIs('table') && } */}
+                            {!!data && <VirtualizedTable data={data} />}
+                            
+                            {/* {snapshotIs('heatmap') && <InteractiveHeatmapVisualization data={data} />} */}
                             </>
                         )
                     })()
