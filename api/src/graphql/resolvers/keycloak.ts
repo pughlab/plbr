@@ -29,6 +29,7 @@ export const resolvers = {
           return keycloakUser
         }
       } catch (error) {
+        // console.error(error)
         throw new ApolloError('mutation.me error')
       }
     },

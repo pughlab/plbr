@@ -1,16 +1,14 @@
 import React, {useState, useReducer} from 'react'
 import { Route, Routes, useParams } from 'react-router-dom'
-import { Message, Divider, Label, Container, Header, List, Dropdown, Input, Segment, Form, Button, Grid, Checkbox, Menu } from 'semantic-ui-react'
+import { Message, Divider, Label, Container, Header, List, Dropdown, Input, Segment, Form, Button, Grid, Checkbox, Menu, Popup } from 'semantic-ui-react'
 import useRouter from '../../../hooks/useRouter'
 
-import SunburstVisualization from '../../visualizations/sunburst/SunburstVisualization'
-import TreemapVisualization from '../../visualizations/treemap/TreemapVisualization'
-import PieVisualization from '../../visualizations/pie/PieVisualization'
-import BarVisualization from '../../visualizations/bar/BarVisualization'
-import ViolinVisualization from '../../visualizations/violin/ViolinVisualization'
-import HeatmapVisualization from '../../visualizations/heatmap/visx/HeatmapVisualization'
+import { SnapshotVisualization, VISUALIZATIONS } from '../../visualizations'
+
 
 import * as R from 'remeda'
+import { current } from '@reduxjs/toolkit'
+
 
 const harddata = [
 {refID: 0, dv1: 2, dv2: 2},
@@ -37,27 +35,9 @@ const columns = [
     accessor: 'dv2',
   },
 ]
-const dv1Pie = [
-    {letter: '2', frequency: 9}
-]
-const dv2Pie = [
-    {letter: '0', frequency: 5},
-    {letter: '1', frequency: 3},
-    {letter: '2', frequency: 1},
-]
 
-const VISUALIZATIONS = R.pipe(
-    [
-        {key: 'table', },
-        {key: 'bar', },
-        {key: 'pie', },
-        {key: 'sunburst', },
-        {key: 'treemap', },
-        {key: 'heatmap', },
-        {key: 'violin', },
-    ],
-    R.map(({key}) => ({key, text: key, value: key}))
-)
+
+
 
 function useSelectDataVariablesState({}) {
 
@@ -97,6 +77,7 @@ function useSelectDataVariablesState({}) {
 function DataExportDetails () {
     const {exportID} = useParams()
     const {state, dispatch} = useSelectDataVariablesState({})
+    const [currentSnapshot, setSnapshot] = useState(null)
     return (
         <>
         <Message>
@@ -177,31 +158,35 @@ function DataExportDetails () {
         <Divider horizontal />
         <Segment>
             <Divider horizontal content='Visualizations and Snapshots' />
-            <Menu fluid />
+            <Menu fluid horizontal>
             {
                 R.map.indexed([... state.snapshots], (snapshot, i) => {
                     return (
-                        <Segment key={i}>
-                            {JSON.stringify(snapshot)}
-                        </Segment>
+                        <Popup
+                            trigger={
+                                <Menu.Item key={i}
+                                    active={R.equals(i, current)}
+                                    onClick={() => setSnapshot(i)}
+                                >
+                                    {i}
+                                </Menu.Item>    
+                            }
+                        >
+                        {JSON.stringify(snapshot)}
+                        </Popup>
                     )
                 })
             }
-            <Segment>
-                <ViolinVisualization width={600} height={500} />
-            </Segment>
-
-            <Segment>
-                <HeatmapVisualization width={600} height={500} />
-            </Segment>
-            {/* <Segment basic>
-                <Header content={'HENV18WKQ2a'} />
-            <PieVisualization data={dv1Pie} />
-            </Segment>
-            <Segment basic>
-                <Header content={'HENV18WKQ2b'} />
-            <PieVisualization data={dv2Pie} />
-            </Segment> */}
+            </Menu>
+            {
+                (() => {
+                    if (R.isNil(currentSnapshot)) {return}
+                    const snapshot = [... state.snapshots][currentSnapshot]
+                    return (
+                        <SnapshotVisualization {... {snapshot}} />
+                    )
+                })()
+            }
         </Segment>
         </>
     )

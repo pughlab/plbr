@@ -15,6 +15,7 @@ type DataVariable {
 
 type DataVariableField {
     name: String!
+    xref: ID!
     # code: String!
     # description: String!
     # jsonSchema: JSON!

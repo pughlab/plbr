@@ -9,46 +9,17 @@ import { shallowEqual } from 'react-redux';
 import {Logo} from '../logos'
 import {LOGIN_MENU_ELEMENT_ID} from '../intros/PortalNavBarIntro'
 
-export default function LoginModal ({}) {
-  console.log('test')
-  // const {keycloakUser} = state
-  // const {name, email} = keycloakUser
-  const [open, setOpen] = useState(false)
+export default function LogoutModal ({}) {
   const { keycloak, initialized } = useKeycloak()
   const keycloakMe = useAppSelector(currentAppContextKeycloakMe, shallowEqual)
-  // console.log(keycloakMe)
   if (!keycloakMe) {
-    return (
-      <Menu.Item
-        header
-        icon={<Icon name='spinner' loading />}
-        onClick={() => setOpen(!open)}
-      />
-    )
+    return (<></>)
   }
-  // console.log(context)
-  // return null
   const {name, email} = keycloakMe
   return (
     <>
-    <Popup size='large' flowing wide='very'
-      trigger={
-        <Menu.Item
-          id={LOGIN_MENU_ELEMENT_ID}     
-          header
-          icon='user'
-          onClick={() => setOpen(!open)}
-        />
-      }
-    >
-      {`Logged in as  `}<Label basic content={name} detail={email} />
-    </Popup>
-    
     <Modal
-      {...{open}}
-      closeIcon
-      onClose={() => setOpen(!open)}
-      closeOnDimmerClick={true}
+      trigger={<Button fluid content='Logout' />}
     >
       <Modal.Content>
       {/* put logout here */}

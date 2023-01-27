@@ -16,6 +16,11 @@ export default function CalendarHeatmapVisualization() {
 
   return (
     <Segment loading={loading}>
+      <Button.Group>
+        <Button content='Studies' />
+        <Button content='Datasets' />
+        <Button content='Exports' />
+      </Button.Group>
       <Divider horizontal>
         <Button.Group>
           <Button icon='left arrow' onClick={() => setEndDate(addMonths(endDate, -1))} />

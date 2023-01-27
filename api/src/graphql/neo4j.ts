@@ -11,5 +11,9 @@ export const driver = neo4j.driver(
     process.env.NEO4J_USER || 'neo4j',
     process.env.NEO4J_PASSWORD || 'neo4j'
   ),
-  { encrypted: "ENCRYPTION_OFF"}
+  {
+    encrypted: "ENCRYPTION_OFF",
+    // https://stackoverflow.com/questions/42645342/neo4j-return-an-integer-instead-of-high-0-low-10
+    disableLosslessIntegers: true
+  }
 )

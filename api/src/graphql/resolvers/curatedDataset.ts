@@ -34,28 +34,43 @@ export const resolvers = {
             `CALL apoc.load.csv($presignedURL, {sep: \",\", compression: \"GZIP\", header: false}) YIELD lineNo, list 
             MATCH (b:CuratedDataset {curatedDatasetID: $curatedDatasetID})
             MERGE (b)-[:HAS_FIELD_DEFINITION]->(a: DataVariableFieldDefinition { xref: list[0], description: list[1], validationSchema: list[2], rank: lineNo})
-            RETURN *`,
+            RETURN a`,
           {curatedDatasetID, presignedURL: presignedURLCodebook}
         )
-        const createCuratedDatasetFromRawDataset = await session.run(
-          `CALL apoc.periodic.iterate(
+        const createDataVariables = await session.run(
+          `
+          CALL {
+            MATCH (b: CuratedDataset {curatedDatasetID: $curatedDatasetID})-[:HAS_FIELD_DEFINITION]->(a: DataVariableFieldDefinition)
+            RETURN a AS dvfd, b as cd
+          }
+          WITH dvfd
+          CALL apoc.periodic.iterate(
             \'CALL apoc.load.csv($presignedURL, {sep: \" \", compression: \"GZIP\", header: false}) YIELD lineNo, list\',
-            \'MATCH (b: CuratedDataset {curatedDatasetID: $curatedDatasetID})
-            CREATE (a:DataVariable {dataVariableID: apoc.create.uuid()}),
-              (c:DataVariableField {name: \"chromosome\", value: list[0]}),
-              (d:DataVariableField {name: \"start\", value: list[1]}),
-              (e:DataVariableField {name: \"end\", value: list[2]}),
-              (f:DataVariableField {name: \"datavalue\", value: list[3]}),
-              (a)-[:HAS_FIELD]->(c), (a)-[:HAS_FIELD]->(d), (a)-[:HAS_FIELD]->(e), (a)-[:HAS_FIELD]->(f), (b)-[:HAS_DATA_VARIABLE]->(a)
-            RETURN a',
+            \'
+            MATCH (b: CuratedDataset {curatedDatasetID: $curatedDatasetID})
+            CREATE (dv: DataVariable {dataVariableID: apoc.create.uuid()})
+            UNWIND dvfd AS fieldDef
+            MERGE (dvf: DataVariableField {xref: fieldDef.xref, value: list[fieldDef.rank]})-[:HAS_FIELD_DEFINITION]->(dv)
+            RETURN dv, dvf\',
             {batchSize:10000, iterateList:true, parallel:true, params:{curatedDatasetID: $curatedDatasetID, presignedURL: $presignedURL}}
-          )`,
+          )
+          YIELD batches, total RETURN batches, total`,
           {curatedDatasetID: curatedDatasetID, presignedURL: presignedURLRaw}
         )
+// need to create data variable nodes
+
+        // CREATE (a:DataVariable {dataVariableID: apoc.create.uuid()}),
+        // (c:DataVariableField {name: \"chromosome\", value: list[0]}),
+        // (d:DataVariableField {name: \"start\", value: list[1]}),
+        // (e:DataVariableField {name: \"end\", value: list[2]}),
+        // (f:DataVariableField {name: \"datavalue\", value: list[3]}),
+        // (a)-[:HAS_FIELD]->(c), (a)-[:HAS_FIELD]->(d), (a)-[:HAS_FIELD]->(e), (a)-[:HAS_FIELD]->(f), (b)-[:HAS_DATA_VARIABLE]->(a)
+        // return a
 
 
 
-        console.log(createDataDefinitions.records)
+        // console.log(createDataDefinitions.records[0].get(0).properties.rank)
+        console.log(createDataVariables.records)
 
 
 

@@ -9,20 +9,22 @@ import {Logo} from './logos'
 
 import useRouter from '../hooks/useRouter'
 import About from './pages/About'
-import LoginModal from './authentication/LoginModal'
 import Studies from './pages/Studies'
 import Datasets from './pages/Datasets'
 import Explore from './pages/Explore'
 import DataExports from './pages/DataExports'
 import Metadata from './pages/Metadata'
+import AuthPage from './pages/Auth'
 
-import PortalNavBarIntro, {HOME_MENU_ELEMENT_ID, DATA_MENU_ELEMENT_ID} from './intros/PortalNavBarIntro'
+
+import PortalNavBarIntro, {HOME_MENU_ELEMENT_ID, DATA_MENU_ELEMENT_ID, LOGIN_MENU_ELEMENT_ID} from './intros/PortalNavBarIntro'
 
 function Layout ({}) {
   const {navigate, location, isActivePath} = useRouter()
   const routes = [
     {path: '/', icon: 'info circle', introID: HOME_MENU_ELEMENT_ID},
     {path: '/home', icon: 'database', introID: DATA_MENU_ELEMENT_ID},
+    {path: '/user', icon: 'key', introID: LOGIN_MENU_ELEMENT_ID}
   ]
   return (
     <>
@@ -37,7 +39,6 @@ function Layout ({}) {
           {routes.map(
             ({path, icon, introID}) => <Menu.Item id={introID} key={path} {...{header: true, icon, active: isActivePath(path), onClick: (e, d) => navigate(path)}} />
           )}
-          <LoginModal />
           <PortalNavBarIntro />
         </Menu.Menu>
       </Menu>
@@ -66,6 +67,8 @@ export default function Portal () {
     <Routes>
       <Route path="*"  element={<Layout />} >
         <Route index element={<About />} />
+        <Route path='user' element={<AuthPage />} />
+        
         <Route path='home/*' element={
           <>
             <Segment attached='top'>

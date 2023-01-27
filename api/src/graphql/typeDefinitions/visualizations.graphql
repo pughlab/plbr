@@ -1,3 +1,9 @@
+type VisualizationSnapshot {
+    snapshotKey: String!
+    description: String!
+    dataVariables: [DataVariable] @relationship(type: "VISUALIZES_DATA_VARIABLE", direction: IN)
+}
+
 type CalendarHeatmapDatum @exclude {
     date: Date!
     count: Int!
