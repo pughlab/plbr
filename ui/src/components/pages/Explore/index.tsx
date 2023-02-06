@@ -17,6 +17,8 @@ import { QUERY_EVENTS } from '../../../machines/queryMachine';
 import VirtualizedTable from '../../tables/VirtualizedTable'
 import useDataVariablesQuery from '../../../hooks/pages/useDataVariablesQuery';
 
+import Dropzone from './Dropzone';
+
 function DownloadDataVariables({ data }) {
     console.log(data)
     // Can combine with react-table headers
@@ -64,6 +66,7 @@ function BinFilterForm({dispatch}) {
                 {/* </Form.Field> */}
             </Form.Group>
             <Form.Button fluid content='Add filter' onClick={() => dispatch({type: 'addBinFilter', payload: filterState})}/>
+            <Dropzone dispatch = {dispatch}/>
 
         </Form>
     )
@@ -125,16 +128,14 @@ export default function Explore() {
 
             <Segment attached='top'>
                 <ExploreFilterFormGroup {...{filterMachine}} />
-                {
-                    (()=> {
-                        return (
                             <Segment>
                                                             {/* {JSON.stringify(state.binFilters)} */}
                             <BinFilterForm dispatch={dispatch} />
+                            <Segment style={{overflowY:'auto',height:'500px'}}>
                             <List divided relaxed selection>
                             {
                                 state.binFilters.map((binFilter, index) => (
-                                    <List.Item>
+                                    <List.Item key={index}>
                                     <Button inverted fluid color='red' onClick={() => dispatch({type: 'removeBinFilter', payload: index})}>
                                     {JSON.stringify(binFilter)}
                                     </Button>
@@ -143,9 +144,7 @@ export default function Explore() {
                             }
                             </List>
                             </Segment>
-                        )
-                    })()
-                }
+                            </Segment>
                 {
                     (() => {
                         if (!filterMachine.state.matches(FILTER_STATES.READY)) {return }
