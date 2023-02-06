@@ -155,7 +155,11 @@ function MyTable({ columns, data, updateMyData, skipReset, selectedRows, onSelec
       data,
       defaultColumn,
       initialState: {
-        selectedRowIds: selectedRows
+        selectedRowIds: selectedRows,
+        sortBy:[
+            {id: 'chromosome', desc:false},
+            {id: 'start', desc:false}
+        ]
       },
       // updateMyData isn't part of the API, but
       // anything we put into these options will
