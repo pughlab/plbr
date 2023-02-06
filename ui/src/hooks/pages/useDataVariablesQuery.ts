@@ -19,6 +19,8 @@ export default function useDataVariablesQuery({ }) {
             return {... state, binFilters: newBinFilters}
         } else if (actionType === 'setCuratedDatasetIDs') {
             return {... state, curatedDatasetIDs: payload}
+        } else if (actionType === 'bulkUpdateBinFilter') {
+            return {... state, binFilters: payload}
         }
         return state
     }, {curatedDatasetIDs: [], binFilters: []})
@@ -51,7 +53,12 @@ export default function useDataVariablesQuery({ }) {
                 name
                 dataVariables(
                     where: $dataVariableWhere
-                    options:{limit:10000, sort: [{ chromosome: ASC },{ start: ASC }]}
+                    # where: {OR: [{chromosome:"chr1",start_GTE:10000,end_LTE: 50000, datavalue_GTE: 0.1},
+                    # {chromosome:"chr2",start_GTE:50000,end_LTE: 500000, datavalue_GTE: 0.2},
+                    # {chromosome:"chr2",start_GTE:500000,end_LTE: 5000000, datavalue_GTE: 0.2},
+                    # {chromosome:"chr3",start_GTE:5000000,end_LTE: 50000000, datavalue_GTE: 0.3}]}
+                    # options:{limit:10000, sort: [{ chromosome: ASC },{ start: ASC }]}
+                    options:{limit:50000}
                 ) {
                     dataVariableID
                     chromosome
