@@ -1,5 +1,6 @@
 import React, { useState, useReducer, useMemo, useEffect } from 'react'
 import { Message, Divider, List, Container, Input, Segment, Form, Button, Dropdown, Modal } from 'semantic-ui-react'
+import SegmentPlaceholder from '../../common/SegmentPlaceholder';
 import DataVariableTable from '../../visualizations/tables/DataVariableTable'
 import InteractiveHeatmapVisualization from '../../visualizations/heatmap/plotly/InteractiveHeatmapVisualization';
 import { CSVLink } from "react-csv";
@@ -131,7 +132,10 @@ export default function Explore() {
                             <Segment>
                                                             {/* {JSON.stringify(state.binFilters)} */}
                             <BinFilterForm dispatch={dispatch} />
-                            <Segment style={{overflowY:'auto',height:'500px'}}>
+
+                            {/* ternary checking if there are any uploaded filters */}
+                            {state.binFilters.length == 0 ? <SegmentPlaceholder text={'No uploads yet'} /> :
+                            <Segment style={{overflowY:'auto',height:'300px'}} >
                             <List divided relaxed selection>
                             {
                                 state.binFilters.map((binFilter, index) => (
@@ -144,6 +148,8 @@ export default function Explore() {
                             }
                             </List>
                             </Segment>
+                            }
+
                             </Segment>
                 {
                     (() => {
