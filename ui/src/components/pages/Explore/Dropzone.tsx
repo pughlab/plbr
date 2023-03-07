@@ -63,15 +63,31 @@ function Dropzone({dispatch}) {
           prevFiles
         )
       );
-      //parsing of uploaded bed file 
+
+      //splits uploaded file (acceptedFiles) into array of two elements, everything before the period ([0]) and then everything after ([1])
+      let fileExtension = acceptedFiles[0].name.split('.')
+      // console.log(fileExtension[1])
+
+      //changing papaParse delimiter based on file extension (.bed, .tsv)
+      let papaDelimiter = ""
+      if(fileExtension[1] == 'bed'){
+        papaDelimiter = " "
+      }
+      if(fileExtension[1] == 'tsv'){
+        papaDelimiter = "\t"
+      }
+
+      //parsing of uploaded .bed or .tsv filter data
       papa.parse(acceptedFiles[0],{
         dynamicTyping:true,
         worker: true,
-        delimiter: " ",
+        delimiter: papaDelimiter,
         // delimiter: "\t",
         // download: true,
         step: function(row){
             let objArray = {"chromosome": row.data[0], "start": row.data[1], "end": row.data[2], "datavalue": row.data[3]}
+            // let objArray = {"name": row.data[0], "number": row.data[1]}
+
             console.log(objArray)
 
             whereArray.push(objArray)
