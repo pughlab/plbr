@@ -1,0 +1,11 @@
+Funnel Submodule Setup 
+(must have access to submodule's original repository)
+
+- npm install
+- git submodule init 
+    - submodule from original repo gets registered in current working directory path
+- git submodule update
+    - should then clone into current working directory, and then redirect to the submodule's original repository.
+    - (ensure you have access to the repository ex. dev privileges)
+
+When successful, submodule folder should now provide access to files.
